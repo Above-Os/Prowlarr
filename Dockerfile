@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim AS ui-builder
+FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS ui-builder
 WORKDIR /src
 ENV NODE_OPTIONS=--max-old-space-size=4096
 
@@ -7,12 +7,11 @@ COPY tsconfig.json ./
 COPY frontend ./frontend
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3 make g++ ca-certificates \
+    && apt-get install -y --no-install-recommends nodejs npm yarnpkg python3 make g++ ca-certificates \
     && rm -rf /var/lib/apt/lists/*
-RUN npm install -g yarn@1.22.22
-RUN yarn --version && node --version
-RUN yarn install --frozen-lockfile --non-interactive --network-timeout 120000
-RUN yarn run build --env production
+RUN yarnpkg --version && node --version
+RUN yarnpkg install --frozen-lockfile --non-interactive --network-timeout 120000
+RUN yarnpkg run build --env production
 
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS app-builder
