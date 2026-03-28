@@ -33,6 +33,15 @@ RUN dotnet publish "src/NzbDrone.Console/Prowlarr.Console.csproj" \
     -p:TreatWarningsAsErrors=false \
     -o /app/publish \
     --verbosity normal
+RUN dotnet publish "src/NzbDrone.Mono/Prowlarr.Mono.csproj" \
+    -c Release \
+    -f net8.0 \
+    --self-contained false \
+    -p:UseAppHost=false \
+    -p:EnableAnalyzers=false \
+    -p:TreatWarningsAsErrors=false \
+    -o /app/publish \
+    --verbosity minimal
 
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim AS runtime
