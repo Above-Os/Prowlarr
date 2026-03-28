@@ -32,12 +32,10 @@ RUN set -eux; \
       EFFECTIVE_RID="${RID}"; \
     fi; \
     echo "Using RID=${EFFECTIVE_RID} (TARGETARCH=${TARGETARCH})"; \
-    dotnet restore "src/Prowlarr.sln" -r "${EFFECTIVE_RID}" --verbosity normal; \
     dotnet publish "src/NzbDrone.Console/Prowlarr.Console.csproj" \
       -c Release \
       -r "${EFFECTIVE_RID}" \
       --self-contained false \
-      --no-restore \
       -p:EnableAnalyzers=false \
       -p:TreatWarningsAsErrors=false \
       -o /app/publish \
