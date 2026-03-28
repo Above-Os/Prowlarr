@@ -2,11 +2,12 @@ FROM node:20-bookworm-slim AS ui-builder
 WORKDIR /src
 
 COPY package.json yarn.lock ./
+COPY tsconfig.json ./
 COPY frontend ./frontend
 
-RUN corepack enable \
+RUN npm install -g yarn@1.22.22 \
     && yarn install --frozen-lockfile --network-timeout 120000 \
-    && yarn build
+    && yarn run build --env production
 
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS app-builder
