@@ -713,7 +713,7 @@ namespace NzbDrone.Core.Indexers
 
             if (request.RequestTimeout == TimeSpan.Zero)
             {
-                request.RequestTimeout = TimeSpan.FromSeconds(15);
+                request.RequestTimeout = TimeSpan.FromSeconds(60);
             }
 
             if (request.RateLimit < RateLimit)
