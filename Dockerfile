@@ -18,6 +18,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS app-builder
 WORKDIR /src
 
 COPY src ./src
+COPY Logo ./Logo
 RUN dotnet publish "src/NzbDrone.Console/Prowlarr.Console.csproj" \
     -c Release \
     -f net8.0 \
