@@ -20,6 +20,7 @@ WORKDIR /src
 COPY src ./src
 RUN dotnet publish "src/NzbDrone.Console/Prowlarr.Console.csproj" \
     -c Release \
+    -f net8.0 \
     --self-contained false \
     -p:UseAppHost=false \
     -p:EnableAnalyzers=false \
