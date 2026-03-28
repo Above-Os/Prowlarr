@@ -11,13 +11,16 @@ RUN corepack enable \
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS app-builder
 WORKDIR /src
+ARG RID=linux-x64
 
 COPY src ./src
 RUN dotnet restore "src/Prowlarr.sln"
 RUN dotnet publish "src/NzbDrone.Console/Prowlarr.Console.csproj" \
     -c Release \
-    -r linux-x64 \
+    -r ${RID} \
     --self-contained false \
+    -p:EnableAnalyzers=false \
+    -p:TreatWarningsAsErrors=false \
     -o /app/publish
 
 
