@@ -16,30 +16,16 @@ RUN yarnpkg run build --env production
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS app-builder
 WORKDIR /src
-ARG RID=auto
-ARG TARGETARCH
 
 COPY src ./src
-RUN set -eux; \
-    if [ "${RID}" = "auto" ]; then \
-      case "${TARGETARCH}" in \
-        amd64) EFFECTIVE_RID="linux-x64" ;; \
-        arm64) EFFECTIVE_RID="linux-arm64" ;; \
-        arm) EFFECTIVE_RID="linux-arm" ;; \
-        *) echo "Unsupported TARGETARCH: ${TARGETARCH}"; exit 1 ;; \
-      esac; \
-    else \
-      EFFECTIVE_RID="${RID}"; \
-    fi; \
-    echo "Using RID=${EFFECTIVE_RID} (TARGETARCH=${TARGETARCH})"; \
-    dotnet publish "src/NzbDrone.Console/Prowlarr.Console.csproj" \
-      -c Release \
-      -r "${EFFECTIVE_RID}" \
-      --self-contained false \
-      -p:EnableAnalyzers=false \
-      -p:TreatWarningsAsErrors=false \
-      -o /app/publish \
-      --verbosity normal
+RUN dotnet publish "src/NzbDrone.Console/Prowlarr.Console.csproj" \
+    -c Release \
+    --self-contained false \
+    -p:UseAppHost=false \
+    -p:EnableAnalyzers=false \
+    -p:TreatWarningsAsErrors=false \
+    -o /app/publish \
+    --verbosity normal
 
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim AS runtime
@@ -57,5 +43,5 @@ EXPOSE 9696
 
 VOLUME ["/config"]
 
-ENTRYPOINT ["./Prowlarr"]
+ENTRYPOINT ["dotnet", "Prowlarr.dll"]
 CMD ["-nobrowser", "-data=/config"]
