@@ -16,17 +16,32 @@ RUN yarnpkg run build --env production
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS app-builder
 WORKDIR /src
-ARG RID=linux-x64
+ARG RID=auto
+ARG TARGETARCH
 
 COPY src ./src
-RUN dotnet restore "src/Prowlarr.sln"
-RUN dotnet publish "src/NzbDrone.Console/Prowlarr.Console.csproj" \
-    -c Release \
-    -r ${RID} \
-    --self-contained false \
-    -p:EnableAnalyzers=false \
-    -p:TreatWarningsAsErrors=false \
-    -o /app/publish
+RUN set -eux; \
+    if [ "${RID}" = "auto" ]; then \
+      case "${TARGETARCH}" in \
+        amd64) EFFECTIVE_RID="linux-x64" ;; \
+        arm64) EFFECTIVE_RID="linux-arm64" ;; \
+        arm) EFFECTIVE_RID="linux-arm" ;; \
+        *) echo "Unsupported TARGETARCH: ${TARGETARCH}"; exit 1 ;; \
+      esac; \
+    else \
+      EFFECTIVE_RID="${RID}"; \
+    fi; \
+    echo "Using RID=${EFFECTIVE_RID} (TARGETARCH=${TARGETARCH})"; \
+    dotnet restore "src/Prowlarr.sln" -r "${EFFECTIVE_RID}" --verbosity normal; \
+    dotnet publish "src/NzbDrone.Console/Prowlarr.Console.csproj" \
+      -c Release \
+      -r "${EFFECTIVE_RID}" \
+      --self-contained false \
+      --no-restore \
+      -p:EnableAnalyzers=false \
+      -p:TreatWarningsAsErrors=false \
+      -o /app/publish \
+      --verbosity normal
 
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim AS runtime
